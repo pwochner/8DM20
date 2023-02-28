@@ -21,4 +21,5 @@ Train a generative model to create synthetic images and investigate the use of t
 * The images should be processed in 2D, segmenting each slice one-by-one, rather than in 3D, and they are downsampled by the dataloader to save computation time.
 * It is recommended to spend time optimising the generative model rather than the segmentation model as that is the the main focus of this part of the course.
 * Remember that this project is more similar to a research project than a course assignment and as such, good results are not guaranteed. You will still score highly for a good approach irrespective of the results.
+* It is recommended to set up a new virtual environment in the directory you are writing the code using: `python3 -m venv venv`. Remember to activate the environment (how exactly depends on your system) and install the dependencies using the requirements.txt file: `pip install -r requirements.txt`.
 
