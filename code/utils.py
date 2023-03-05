@@ -4,18 +4,18 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 
-
+# TODO: improve documentation
 class ProstateMRDataset(torch.utils.data.Dataset):
+    """Dataset containing prostate MR images. 
+
+    Parameters
+    ----------
+    paths : list[Path]
+        paths to the patient data
+    img_size : list[int]
+        size of images to be interpolated to
+    """
     def __init__(self, paths, img_size):
-        """
-        Constructor
-
-        Parameters
-        ----------
-        paths : paths to patient data
-        img_size : size images to be interpolated to
-        """
-
         self.mr_image_list = []
         self.mask_list = []
         # load images
@@ -48,15 +48,18 @@ class ProstateMRDataset(torch.utils.data.Dataset):
         )
 
     def __len__(self):
-        """
-        Returns length of dataset
+        """Returns length of dataset
         """
         return self.no_patients * self.no_slices
 
     def __getitem__(self, index):
-        """
-        Returns the preprocessing MR image and corresponding segementation
-        for a given index
+        """ Returns the preprocessing MR image and corresponding segementation
+        for a given index.
+
+        Parameters
+        ----------
+        index : int
+            index of the image/segmentation in dataset
         """
 
         # compute which slice an index corresponds to
@@ -76,29 +79,33 @@ class ProstateMRDataset(torch.utils.data.Dataset):
 
 
 class DiceBCELoss(nn.Module):
-    """
-    Class for the loss function:
-    sum of Dice score and binary cross-entropy
+    """Loss function, computed as the sum of Dice score and binary cross-entropy.
+
+    Notes
+    -----
+    This loss assumes that the inputs are logits (i.e., the outputs of a linear layer), 
+    and that the targets are integer values that represent the correct class labels. 
     """
 
-    def __init__(self, weight=None, size_average=True):
-        # Constructor
+    def __init__(self):
         super(DiceBCELoss, self).__init__()
 
     def forward(self, outputs, targets, smooth=1):
-        """
-        Calculates segmentation loss for training
+        """Calculates segmentation loss for training
 
         Parameters
         ----------
-        outputs : predictions of segmentation mode
-        targets : ground-truth labels
-        smooth : smooth parameter for dice score
-            avoids division by zero, by default 1
+        outputs : torch.Tensor
+            predictions of segmentation model
+        targets : torch.Tensor
+            ground-truth labels
+        smooth : float
+            smooth parameter for dice score avoids division by zero, by default 1
 
         Returns
         -------
-        The sum of the dice loss and binary cross-entropy
+        float
+            the sum of the dice loss and binary cross-entropy
         """
         outputs = torch.sigmoid(outputs)
 

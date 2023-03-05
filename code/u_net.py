@@ -3,27 +3,35 @@ import torch.nn as nn
 
 
 class Block(nn.Module):
-    """
-    Class for the basic convolutional building block of the unet
+    """A representation for the basic convolutional building block of the unet
+
+    Parameters
+    ----------
+    in_ch : int 
+        number of input channels to the block
+    out_ch : int 
+        number of output channels of the block
     """
 
     def __init__(self, in_ch, out_ch):
-        """
-        Constructor.
-        :param in_ch: number of input channels to the block
-        :param out_ch: number of output channels of the block
-        """
         super().__init__()
         self.conv1 = nn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1)
         self.relu = nn.ReLU()
         
         self.conv2 = nn.Conv2d(out_ch, out_ch, 3, padding=1)
-
+    
     def forward(self, x):
-        """
-        Returns the output of a forward pass of the block
-        :param x: the input tensor
-        :return: the output tensor of the block
+        """Performs the forward pass of the block.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            the input to the block
+
+        Returns
+        -------
+        x : torch.Tensor
+            the output of the forward pass
         """
         # a block consists of two convolutional layers
         # with ReLU activations
@@ -33,15 +41,16 @@ class Block(nn.Module):
 
 
 class Encoder(nn.Module):
-    """
-    Class for the encoder part of the unet.
+    """A representation for the encoder part of the unet.
+
+    Parameters
+    ----------
+    chs : tuple
+        holds the number of input channels of each block in the encoder
+
     """
 
     def __init__(self, chs=(1, 64, 128, 256, 512, 1024)):
-        """
-        Constructor.
-        :param chs: tuple giving the number of input channels of each block in the encoder
-        """
         super().__init__()
         # convolutional blocks
         self.enc_blocks = nn.ModuleList(
@@ -51,9 +60,17 @@ class Encoder(nn.Module):
         self.pool = # TODO
 
     def forward(self, x):
-        """
-        Returns the list of the outputs of all the blocks in the encoder
-        :param x: input image tensor
+        """Performs the forward pass for all blocks in the encoder.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            input 
+
+        Returns
+        -------
+        list[torch.Tensor]
+            contains the outputs of each block in the encoder
         """
         ftrs = []  # a list to store features
         for block in self.enc_blocks:
@@ -66,17 +83,17 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    """
-    Class for the decoder part of the unet.
+    """A representation for the decoder part of the unet.
+
+    Layers consist of transposed convolutions followed by convolutional blocks.
+
+    Parameters
+    ----------
+    chs : tuple
+        holds the number of input channels of each block in the decoder
     """
 
     def __init__(self, chs=(1024, 512, 256, 128, 64)):
-        """
-        Constructor.
-        :param chs: tuple giving the number of input channels of each block in the decoder
-        
-        Layers consist of transposed convolutions followed by convolutional blocks
-        """
         super().__init__()
         self.chs = chs
         self.upconvs = nn.ModuleList(
@@ -87,10 +104,19 @@ class Decoder(nn.Module):
         )
 
     def forward(self, x, encoder_features):
-        """
-        Returns the output of the decoder part of the unet
-        :param x: input tensor to the decoder
-        :param encoder_features: list of the encoder features to be concatenated to the corresponding level of the decoder
+        """Performs the forward pass for all blocks in the decoder. 
+        
+        Parameters
+        ----------
+        x : torch.Tensor
+            input to the decoder
+        encoder_features: list
+            contains the encoder features to be concatenated to the corresponding level of the decoder
+
+        Returns
+        -------
+        x : torch.Tensor
+            output of the decoder 
         """
         for i in range(len(self.chs) - 1):
             # transposed convolution
@@ -107,8 +133,16 @@ class Decoder(nn.Module):
 
 
 class UNet(nn.Module):
-    """
-    Class for the unet
+    """A representation for a unet
+    
+    Parameters
+    ----------
+    enc_chs : tuple
+        holds the number of input channels of each block in the encoder
+    dec_chs : tuple
+        holds the number of input channels of each block in the decoder
+    num_classes : int
+        number of output classes of the segmentation
     """
 
     def __init__(
@@ -117,12 +151,6 @@ class UNet(nn.Module):
         dec_chs=(256, 128, 64, 32),
         num_classes=1,
     ):
-        """
-        Constructor.
-        :param enc_chs: tuple giving the number of input channels of each block in the encoder
-        :param dec_chs: tuple giving the number of input channels of each block in the encoder
-        :param num_classes: number of output classes of the segmentation
-        """
         super().__init__()
         self.encoder = Encoder(enc_chs)
         self.decoder = Decoder(dec_chs)
@@ -131,9 +159,17 @@ class UNet(nn.Module):
         )  # output layer
 
     def forward(self, x):
-        """
-        Returns the output of a forward pass of the unet
-        :param x: the input tensor to the unet
+        """Performs the forward pass of the unet.
+       
+        Parameters
+        ----------
+        x : torch.Tensor
+            the input to the unet (image)
+
+        Returns
+        -------
+        out : torch.Tensor
+            unet output, the logits of the predicted segmentation mask
         """
 
         # TODO
